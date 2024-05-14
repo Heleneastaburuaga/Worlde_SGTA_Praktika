@@ -3,16 +3,15 @@ import Irabazi from './irabazi';
 import {Main, Header, GameSection, TileContainer, TileRow, Tile} from './estiloa';
 import "./App.css";
 
-function Board({ word, language, onWin }) {
+function Board({ word, language, onWin, isAI = false }) {
 
   const [turn, setTurn] = useState(1);
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
   const [canProceed, setCanProceed] = useState(true);
   const [win, setWin] = useState(false);
-
+  
   const [wordNotFound, setWordNotFound] = useState(false); // Nuevo estado para controlar si la palabra no se encontró
 
-  console.log("hitza " + word)
   const [guesses, setGuesses] = useState({
     0: Array.from({ length: 5 }).fill(""),
     1: Array.from({ length: 5 }).fill(""),
