@@ -1,13 +1,16 @@
 // App.js
 import React, { useEffect, useState } from 'react';
 import Irabazi from './irabazi';
+import Galdu from './galdu';
 import Board from './board';
+import BoardAI from './boardAI';
 
 function App() {
   const [words, setWords] = useState([]);
   const [language, setLanguage] = useState('es'); // Idioma por defecto
   const [selectedWord, setSelectedWord] = useState('');
   const [hasWon, setHasWon] = useState(false); // Nuevo estado para rastrear si el usuario ha ganado
+  const [currentTurn, setCurrentTurn] = useState('player'); // Nuevo estado para rastrear el turno actual
 
   useEffect(() => {
     const fetchWordOfTheDay = async () => {
@@ -36,27 +39,27 @@ function App() {
 
   return (
     <div className="App">
-      {hasWon ? (
-        <Irabazi />
-      ) : (
-        <>
-          <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-            <div>
-              <p>Palabra seleccionada: {selectedWord}</p>
-              <select onChange={handleLanguageChange}>
-                <option value="es">Español</option>
-                <option value="en">Inglés</option>
-                <option value="eu">Vasco</option>
-              </select>
-              <Board word={selectedWord} language={language} onWin={handleWin} />
-            </div>
-            <div>
-              <p>AI jugando...</p>
-              <Board word={selectedWord} language={language} onWin={handleWin} isAI={true} />
-            </div>
-          </div>
-        </>
-      )}
+     {hasWon ? (
+  currentTurn === 'ai' ? <Irabazi /> : <Galdu />
+) : (
+  <>
+    <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+      <div>
+        <p>Palabra seleccionada: {selectedWord}</p>
+        <select onChange={handleLanguageChange}>
+          <option value="es">Español</option>
+          <option value="en">Inglés</option>
+          <option value="eu">Vasco</option>
+        </select>
+        <BoardAI word={selectedWord} language={language} onWin={handleWin} currentTurn={currentTurn} setCurrentTurn={setCurrentTurn} />
+      </div>
+      <div>
+        <p>AI jugando...</p>
+        <Board word={selectedWord} language={language} onWin={handleWin} currentTurn={currentTurn} setCurrentTurn={setCurrentTurn} />
+      </div>
+    </div>
+  </>
+)}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Irabazi from './irabazi';
+import Galdu from './galdu';
 import {Main, Header, GameSection, TileContainer, TileRow, Tile} from './estiloa';
 import "./App.css";
 
@@ -87,7 +87,7 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
   async function onEnter() {
 
     //comprobar si la palabra esta en el dicionario
-    if(currentTurn === 'player'){
+    if(currentTurn === 'ai'){
     try {
       const response = await fetch(`/check-word?word=${guesses[turn - 1].join("").toLowerCase()}&language=${language}`);
       if (!response.ok) {
@@ -110,7 +110,7 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
           guess.forEach((guessChar, charIndex) => {
             let zenbaki = hitzak[guessChar];
             if (guessChar === word[charIndex]) { 
-              newTileColors[`${guessIndex}-${charIndex}`] = 'green';
+              newTileColors[`${guessIndex}-${charIndex}`] = 'red';
               hitzak[guessChar]--;
             } else if (word.includes(guessChar) && zenbaki > 0) {
               newTileColors[`${guessIndex}-${charIndex}`] = 'yellow';
@@ -127,10 +127,11 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
           console.log("Zorionak, hitza asmatu duzu!");
           setCanProceed(false); //Ezin du gehiago jokatu partida honetan
           setWin(true);
-          console.log("player win "+ win)
+          console.log("ai win "+ win)
           onWin(); 
         }
-        setCurrentTurn('ai');
+        setCurrentTurn('player');
+
       } else {
         console.log("La palabra no existe en el diccionario.");
         setWordNotFound(true);
@@ -147,10 +148,10 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
     const allKeys = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "ñ", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "Enter", "Backspace"];
 
     const handleKeyDown = (e) => {
-      const letter = e.key.toUpperCase();
+        const letter = e.key.toUpperCase();
       if (allKeys.includes(e.key) && turn <= 6) {
         if (letter.length === 1 && letter.match(/[A-Z]/i)) {
-          if(canProceed&&currentTurn === 'player'){
+          if(canProceed&&currentTurn =='ai'){
             let newGuesses = { ...guesses };
             newGuesses[turn - 1][currentLetterIndex] = letter;
             setGuesses(newGuesses);
@@ -179,10 +180,12 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [guesses, turn, currentLetterIndex, canProceed, currentTurn]);
-console.log(" player win "+ win)
-return win && currentTurn === 'player' ? (
-    console.log(" player win "+ win),
-  <Irabazi />
+  console.log(" ai win "+ win)
+
+  return win && currentTurn === 'ai' ? (
+
+  <Galdu />
+  
 ) : (
   <Main>
     <Header>WORDLE</Header>
@@ -194,7 +197,7 @@ return win && currentTurn === 'player' ? (
             <TileRow key={index}>
               {guess.map((guessChar, guessIndex) => {
                 let color =
-                  tileColors[`${index}-${guessIndex}`] === "green"
+                  tileColors[`${index}-${guessIndex}`] === "red"
                     ? "black"
                     : "black";
                 let backgroundColor =
