@@ -22,6 +22,33 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
   });
   const [tileColors, setTileColors] = useState({}); // New state for tile colors
 
+/*
+  //Para usar el LLM generate-word
+  const handleGenerateWord = async () => {
+    try {
+      const response = await fetch('/generate-word', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          regex: '/^[a-z]{5}$/i',
+          word: guesses[turn - 1].join("").toLowerCase(),
+          language: language
+        }),
+      });
+      if (!response.ok) {
+        throw new Error('Error generating word');
+      }
+      const data = await response.json();
+      const generatedWord = data.word;
+      console.log("Palabra IA" + generatedWord);
+    } catch (error) {
+      console.error('Error generating word:', error);
+    }
+  };
+*/
+  
   //hizkuntza aldatzian board hustu
   useEffect(() => {
     setTurn(1);
@@ -85,6 +112,19 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
   }
 
   async function onEnter() {
+   // await handleGenerateWord();
+
+    const response = await fetch('/generate-word', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ regex: '/^[a-z]{5}$/i' })
+    });
+    const data = await response.json();
+    const aiWord = data.word;
+    console.log(aiWord);
+
 
     //comprobar si la palabra esta en el dicionario
     if(currentTurn === 'ai'){

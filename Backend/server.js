@@ -56,6 +56,44 @@ app.get("/check-word", (req, res) => {
     res.json({ isInDictionary });
 });
 
+/*
+app.post("/generate-word", async (req, res) => {
+    const regex = req.body.regex;
+    const word = await generateWord(regex);
+    res.json({ word });
+  });
+  */
+
+app.post('/generate-word', async (req, res) => {
+    /*
+    console.log("Buenas")
+    try {
+      const regex = req.body.regex;
+      const word = await generateWord(regex);
+      res.json({ word });
+      console.log("Hola" + word)
+    } catch (error) {
+      console.error('Error generating word:', error);
+      res.status(500).json({ error: 'Error generating word' });
+    }
+*/
+  const regex = JSON.parse(req.body);
+  const regexStr = regex.regex;
+  const word = await generateWord(regexStr);
+  res.json({ word });
+  });
+
+
+/*
+app.get('/v1/word', (err, data) => {
+  if (err) {
+    console.error(err);
+  } else {
+    console.log(data);
+  }
+});
+
+*/
 // Iniciar el servidor en el puerto 5000
 app.listen(5000, () => {
     console.log("Server started on port 5000");
