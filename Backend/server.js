@@ -10,6 +10,32 @@ function readWordsFromFile(filename) {
     return data.split(',').map(word => word.trim());
 }
 
+function countLetterOccurrences(dictionary, restrictions) {
+    const counts = {};
+   
+    for (const word of dictionary) {
+      for (let i = 0; i < word.length; i++) {
+        const letter = word[i];
+        
+        // Comprobar las restricciones
+        if (restrictions["2"] && restrictions["2"][letter] !== undefined) continue;
+        if (restrictions["1"] && restrictions["1"][letter] === i) continue;
+        if (restrictions["0"] && Object.values(restrictions["0"]).includes(i) && restrictions["0"][letter] !== i) continue;
+  
+        // Incrementar el conteo
+        if (!counts[i]) {
+          counts[i] = {};
+        }
+        if (!counts[i][letter]) {
+          counts[i][letter] = 0;
+        }
+        counts[i][letter]++;
+      }
+    }
+  
+    return counts;
+  }
+
 // Función para buscar una palabra en una lista de palabras
 function searchWord(word, wordList) {
     const lowercaseWord = word.toLowerCase();
@@ -58,8 +84,13 @@ app.get("/check-word", (req, res) => {
 });
 
 app.get("/get-word-from-ai", async (req, res) => {
-  const word = await getWordFromAI();
-  res.json({ word });
+    let restrictions = JSON.parse(req.query.restrictions);
+    //let restrictions = {"0":{"a":0,"b":3},"1":{"d":1},"2":{"e":0}};
+    let words;
+    words = readWordsFromFile('words-es.txt');
+    const dictionary= countLetterOccurrences(words, restrictions);
+    const word = await getWordFromAI(dictionary);
+    res.json({ word, dictionary });
 });
 
 // Iniciar el servidor en el puerto 5000

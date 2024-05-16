@@ -27,8 +27,9 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
   }, []);
  console.log("Hitza ia: " + wordFromAI)
   const fetchWordFromAI = async () => {
+    const restrictions = {"0":{"a":0,"b":3},"1":{"d":1},"2":{"e":0}};
     try {
-      const response = await fetch('/get-word-from-ai');
+      const response = await fetch(`/get-word-from-ai?restrictions=${JSON.stringify(restrictions)}`);
       if (!response.ok) {
         throw new Error('Error al obtener la palabra de la IA desde el backend');
       }
@@ -38,7 +39,7 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
       console.error(error);
     }
   };
-  console.log("Hitza ia" + wordFromAI)
+  console.log("Hitza ia " + wordFromAI)
 
   useEffect(() => {
     setTurn(1);
@@ -97,6 +98,14 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
 
   async function onEnter() {
     if(currentTurn === 'ai'){
+      let newGuesses = { ...guesses };
+      for (let i = 0; i < wordFromAI.length; i++) {
+        newGuesses[turn - 1][i] = wordFromAI[i].toUpperCase();
+        console.log("Hitza ia berria: " + newGuesses);
+      }
+      setGuesses(newGuesses);
+      setCanProceed(false);
+      setCurrentTurn('player');
       try {
         const response = await fetch(`/check-word?word=${guesses[turn - 1].join("").toLowerCase()}&language=${language}`);
         if (!response.ok) {
@@ -147,7 +156,13 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
       const allKeys = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "ñ", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "Enter", "Backspace"];
   
       const handleKeyDown = (e) => {
-          const letter = e.key.toUpperCase();
+        console.log("key: " + e.key);
+        if (e.key === "Enter") {
+          onEnter();
+          console.log("enter");
+        }
+      }
+          /*const letter = e.key.toUpperCase();
         if (allKeys.includes(e.key) && turn <= 6) {
           if (letter.length === 1 && letter.match(/[A-Z]/i)) {
             if(canProceed && currentTurn === 'ai'){
@@ -168,7 +183,7 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
           }
         }
       };
-  
+  */
       window.addEventListener("keydown", handleKeyDown);
     
       return () => {

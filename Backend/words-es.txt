@@ -1,5 +1,4 @@
-[
-  estoy,
+estoy,
   tengo,
   vamos,
   estas,
@@ -10858,4 +10857,3 @@
   ñutas,
   ñutos,
   ñuzco,
-]
