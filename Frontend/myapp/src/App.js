@@ -12,6 +12,8 @@ function App() {
   const [hasWon, setHasWon] = useState(false); // Nuevo estado para rastrear si el usuario ha ganado
   const [currentTurn, setCurrentTurn] = useState('player'); // Nuevo estado para rastrear el turno actual
 
+
+    //Len zauena hemendik behera
   useEffect(() => {
     const fetchWordOfTheDay = async () => {
       try {
@@ -51,11 +53,11 @@ function App() {
           <option value="en">Inglés</option>
           <option value="eu">Vasco</option>
         </select>
-        <BoardAI word={selectedWord} language={language} onWin={handleWin} currentTurn={currentTurn} setCurrentTurn={setCurrentTurn} />
+        <Board word={selectedWord} language={language} onWin={handleWin} currentTurn={currentTurn} setCurrentTurn={setCurrentTurn} />
       </div>
       <div>
         <p>AI jugando...</p>
-        <Board word={selectedWord} language={language} onWin={handleWin} currentTurn={currentTurn} setCurrentTurn={setCurrentTurn} />
+        <BoardAI word={selectedWord} language={language} onWin={handleWin} currentTurn={currentTurn} setCurrentTurn={setCurrentTurn}/>
       </div>
     </div>
   </>

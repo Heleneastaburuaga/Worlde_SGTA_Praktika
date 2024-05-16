@@ -9,8 +9,8 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
   const [canProceed, setCanProceed] = useState(true);
   const [win, setWin] = useState(false);
-
-  const [wordNotFound, setWordNotFound] = useState(false); // Nuevo estado para controlar si la palabra no se encontró
+  const [wordNotFound, setWordNotFound] = useState(false);
+  const [wordFromAI, setWordFromAI] = useState('');
 
   const [guesses, setGuesses] = useState({
     0: Array.from({ length: 5 }).fill(""),
@@ -20,36 +20,26 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
     4: Array.from({ length: 5 }).fill(""),
     5: Array.from({ length: 5 }).fill("")
   });
-  const [tileColors, setTileColors] = useState({}); // New state for tile colors
+  const [tileColors, setTileColors] = useState({});
 
-/*
-  //Para usar el LLM generate-word
-  const handleGenerateWord = async () => {
+  useEffect(() => {
+    fetchWordFromAI();
+  }, []);
+ console.log("Hitza ia: " + wordFromAI)
+  const fetchWordFromAI = async () => {
     try {
-      const response = await fetch('/generate-word', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          regex: '/^[a-z]{5}$/i',
-          word: guesses[turn - 1].join("").toLowerCase(),
-          language: language
-        }),
-      });
+      const response = await fetch('/get-word-from-ai');
       if (!response.ok) {
-        throw new Error('Error generating word');
+        throw new Error('Error al obtener la palabra de la IA desde el backend');
       }
       const data = await response.json();
-      const generatedWord = data.word;
-      console.log("Palabra IA" + generatedWord);
+      setWordFromAI(data.word);
     } catch (error) {
-      console.error('Error generating word:', error);
+      console.error(error);
     }
   };
-*/
-  
-  //hizkuntza aldatzian board hustu
+  console.log("Hitza ia" + wordFromAI)
+
   useEffect(() => {
     setTurn(1);
     setCurrentLetterIndex(0);
@@ -68,8 +58,7 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
   }, [language]);
 
   function onDelete() {
-      let newGuesses = { ...guesses };
-
+    let newGuesses = { ...guesses };
     if (currentLetterIndex === 4) {
       if(newGuesses[turn - 1][currentLetterIndex] === ""){
         newGuesses[turn - 1][currentLetterIndex - 1] = "";
@@ -89,16 +78,12 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
       newGuesses[turn - 1][currentLetterIndex - 1] = "";
       setCurrentLetterIndex(currentLetterIndex - 1);
     }
-
     setGuesses(newGuesses);
-    // Al borrar una letra, ocultamos el mensaje "PALABRA NO ENCONTRADA"
     setWordNotFound(false);
-  
   }
 
   function countLetters(string) {
     const counts = {};
-
     for (let i = 0; i < string.length; i++) {
       const letter = string[i];
       if (counts[letter]) {
@@ -107,158 +92,118 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
         counts[letter] = 1;
       }
     }
-
     return counts;
   }
 
   async function onEnter() {
-   // await handleGenerateWord();
-
-    const response = await fetch('/generate-word', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ regex: '/^[a-z]{5}$/i' })
-    });
-    const data = await response.json();
-    const aiWord = data.word;
-    console.log(aiWord);
-
-
-    //comprobar si la palabra esta en el dicionario
     if(currentTurn === 'ai'){
-    try {
-      const response = await fetch(`/check-word?word=${guesses[turn - 1].join("").toLowerCase()}&language=${language}`);
-      if (!response.ok) {
-        throw new Error('Error al verificar la palabra en el backend');
-      }
-      const data = await response.json();
-      const isInDictionary = data.isInDictionary;
-  
-      if (isInDictionary) {
-        console.log("La palabra existe en el diccionario.");
-
-        setCanProceed(true);
-        setTurn(turn + 1);
-        setCurrentLetterIndex(0);
-        console.log(guesses);
-
-        let newTileColors = { ...tileColors };
-        Object.values(guesses).forEach((guess, guessIndex) => {
-          let hitzak = countLetters(word);
-          guess.forEach((guessChar, charIndex) => {
-            let zenbaki = hitzak[guessChar];
-            if (guessChar === word[charIndex]) { 
-              newTileColors[`${guessIndex}-${charIndex}`] = 'red';
-              hitzak[guessChar]--;
-            } else if (word.includes(guessChar) && zenbaki > 0) {
-              newTileColors[`${guessIndex}-${charIndex}`] = 'yellow';
-              hitzak[guessChar]--;
-            } else {
-              newTileColors[`${guessIndex}-${charIndex}`] = 'white';
-            }
-          });
-        });
-        setTileColors(newTileColors); // Update tile colors
-        
-        //Hitza asmatu badu, mezua pantailaratu
-       if(word === guesses[turn - 1].join("")){
-          console.log("Zorionak, hitza asmatu duzu!");
-          setCanProceed(false); //Ezin du gehiago jokatu partida honetan
-          setWin(true);
-          console.log("ai win "+ win)
-          onWin(); 
+      try {
+        const response = await fetch(`/check-word?word=${guesses[turn - 1].join("").toLowerCase()}&language=${language}`);
+        if (!response.ok) {
+          throw new Error('Error al verificar la palabra en el backend');
         }
-        setCurrentTurn('player');
-
-      } else {
-        console.log("La palabra no existe en el diccionario.");
-        setWordNotFound(true);
-        // Aquí puedes agregar lógica adicional, como mostrar un mensaje de error en el frontend.
-      }
-    } catch (error) {
-      console.error(error);
-    }
+        const data = await response.json();
+        const isInDictionary = data.isInDictionary;
     
-  }
-  }
-
-  useEffect(() => {
-    const allKeys = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "ñ", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "Enter", "Backspace"];
-
-    const handleKeyDown = (e) => {
-        const letter = e.key.toUpperCase();
-      if (allKeys.includes(e.key) && turn <= 6) {
-        if (letter.length === 1 && letter.match(/[A-Z]/i)) {
-          if(canProceed&&currentTurn =='ai'){
-            let newGuesses = { ...guesses };
-            newGuesses[turn - 1][currentLetterIndex] = letter;
-            setGuesses(newGuesses);
-
-            if (currentLetterIndex === 4) {
+        if (isInDictionary) {
+          setCanProceed(true);
+          setTurn(turn + 1);
+          setCurrentLetterIndex(0);
+          let newTileColors = {tileColors };
+            Object.values(guesses).forEach((guess, guessIndex) => {
+              let hitzak = countLetters(word);
+              guess.forEach((guessChar, charIndex) => {
+                let zenbaki = hitzak[guessChar];
+                if (guessChar === word[charIndex]) { 
+                  newTileColors[`${guessIndex}-${charIndex}`] = 'red';
+                  hitzak[guessChar]--;
+                } else if (word.includes(guessChar) && zenbaki > 0) {
+                  newTileColors[`${guessIndex}-${charIndex}`] = 'yellow';
+                  hitzak[guessChar]--;
+                } else {
+                  newTileColors[`${guessIndex}-${charIndex}`] = 'white';
+                }
+              });
+            });
+            setTileColors(newTileColors);
+          
+            if(word === guesses[turn - 1].join("")){
               setCanProceed(false);
-            } else {
-              setCurrentLetterIndex(currentLetterIndex + 1);
+              setWin(true);
+              onWin(); 
             }
+            setCurrentTurn('player');
+  
+          } else {
+            setWordNotFound(true);
           }
-        }else if (e.key === "Backspace" && currentLetterIndex > 0) {
-          onDelete();
-          return;
-        } else if (e.key === "Enter" && !canProceed) {
-          onEnter();
-          return;
-        }else{
-          return;
+        } catch (error) {
+          console.error(error);
         }
       }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
+    }
   
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [guesses, turn, currentLetterIndex, canProceed, currentTurn]);
-  console.log(" ai win "+ win)
-
-  return win && currentTurn === 'ai' ? (
-
-  <Galdu />
+    useEffect(() => {
+      const allKeys = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "ñ", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "Enter", "Backspace"];
   
-) : (
-  <Main>
-    <Header>WORDLE</Header>
-    {wordNotFound && <div>PALABRA NO ENCONTRADA</div>} {/* Mostrar el mensaje si la palabra no se encontró */}
-    <GameSection>
-      <TileContainer>
-        {Object.values(guesses).map((guess, index) => {
-          return (
-            <TileRow key={index}>
-              {guess.map((guessChar, guessIndex) => {
-                let color =
-                  tileColors[`${index}-${guessIndex}`] === "red"
-                    ? "black"
-                    : "black";
-                let backgroundColor =
-                  tileColors[`${index}-${guessIndex}`] || "white";
-                return (
-                  <Tile
-                    key={guessIndex}
-                    bgColor={backgroundColor}
-                    style={{ color: color }}
-                  >
-                    {guessChar}
-                  </Tile>
-                );
-              })}
-            </TileRow>
-          );
-        })}
-      </TileContainer>
-    </GameSection>
-  </Main>
-);
-}
-
-export default Board;
+      const handleKeyDown = (e) => {
+          const letter = e.key.toUpperCase();
+        if (allKeys.includes(e.key) && turn <= 6) {
+          if (letter.length === 1 && letter.match(/[A-Z]/i)) {
+            if(canProceed && currentTurn === 'ai'){
+              let newGuesses = { ...guesses };
+              newGuesses[turn - 1][currentLetterIndex] = letter;
+              setGuesses(newGuesses);
+  
+              if (currentLetterIndex === 4) {
+                setCanProceed(false);
+              } else {
+                setCurrentLetterIndex(currentLetterIndex + 1);
+              }
+            }
+          } else if (e.key === "Backspace" && currentLetterIndex > 0) {
+            onDelete();
+          } else if (e.key === "Enter" && !canProceed) {
+            onEnter();
+          }
+        }
+      };
+  
+      window.addEventListener("keydown", handleKeyDown);
+    
+      return () => {
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }, [guesses, turn, currentLetterIndex, canProceed, currentTurn]);
+  
+    return win && currentTurn === 'ai' ? (
+      <Galdu />
+    ) : (
+      <Main>
+        <Header>WORDLE</Header>
+        {wordNotFound && <div>PALABRA NO ENCONTRADA</div>}
+        <GameSection>
+          <TileContainer>
+            {Object.values(guesses).map((guess, index) => {
+              return (
+                <TileRow key={index}>
+                  {guess.map((guessChar, guessIndex) => {
+                    let color = tileColors[`${index}-${guessIndex}`] === "red" ? "black" : "black";
+                    let backgroundColor = tileColors[`${index}-${guessIndex}`] || "white";
+                    return (
+                      <Tile key={guessIndex} bgColor={backgroundColor} style={{ color: color }}>
+                        {guessChar}
+                      </Tile>
+                    );
+                  })}
+                </TileRow>
+              );
+            })}
+          </TileContainer>
+        </GameSection>
+      </Main>
+    );
+  }
+  
+  export default Board;
+  

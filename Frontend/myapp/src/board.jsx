@@ -149,8 +149,7 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
     const handleKeyDown = (e) => {
       const letter = e.key.toUpperCase();
       if (allKeys.includes(e.key) && turn <= 6) {
-        console.log(e.key);
-        if (letter.length === 1 && letter.match(/[A-Z]/i) || letter.match('Ñ')) {
+        if (letter.length === 1 && letter.match(/[A-Z]/i)) {
           if(canProceed&&currentTurn === 'player'){
             let newGuesses = { ...guesses };
             newGuesses[turn - 1][currentLetterIndex] = letter;
