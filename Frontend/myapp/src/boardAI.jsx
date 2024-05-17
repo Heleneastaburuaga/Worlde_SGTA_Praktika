@@ -11,6 +11,7 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
   const [win, setWin] = useState(false);
   const [wordNotFound, setWordNotFound] = useState(false);
   const [wordFromAI, setWordFromAI] = useState('');
+  const [dictionary, setDictionary] = useState({});
 
   const [guesses, setGuesses] = useState({
     0: Array.from({ length: 5 }).fill(""),
@@ -26,8 +27,9 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
     fetchWordFromAI();
   }, []);
  console.log("Hitza ia: " + wordFromAI)
+ const restrictions = {...dictionary};
+    console.log("Restrictions: " + JSON.stringify(restrictions));
   const fetchWordFromAI = async () => {
-    const restrictions = {"0":{"a":0,"b":3},"1":{"d":1},"2":{"e":0}};
     try {
       const response = await fetch(`/get-word-from-ai?restrictions=${JSON.stringify(restrictions)}`);
       if (!response.ok) {
@@ -58,30 +60,7 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
     setTileColors({});
   }, [language]);
 
-  function onDelete() {
-    let newGuesses = { ...guesses };
-    if (currentLetterIndex === 4) {
-      if(newGuesses[turn - 1][currentLetterIndex] === ""){
-        newGuesses[turn - 1][currentLetterIndex - 1] = "";
-        setCurrentLetterIndex(currentLetterIndex - 1);
-      } else {
-        setCanProceed(true);
-        newGuesses[turn - 1][currentLetterIndex] = "";
-        setCurrentLetterIndex(currentLetterIndex);
-      }
-    } else if (currentLetterIndex === 3) {
-      newGuesses[turn - 1][currentLetterIndex - 1] = "";
-      setCurrentLetterIndex(currentLetterIndex - 1);
-    } else if (currentLetterIndex === 2) {
-      newGuesses[turn - 1][currentLetterIndex - 1] = "";
-      setCurrentLetterIndex(currentLetterIndex - 1);
-    } else if (currentLetterIndex === 1) {
-      newGuesses[turn - 1][currentLetterIndex - 1] = "";
-      setCurrentLetterIndex(currentLetterIndex - 1);
-    }
-    setGuesses(newGuesses);
-    setWordNotFound(false);
-  }
+ 
 
   function countLetters(string) {
     const counts = {};
@@ -98,14 +77,6 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
 
   async function onEnter() {
     if(currentTurn === 'ai'){
-      let newGuesses = { ...guesses };
-      for (let i = 0; i < wordFromAI.length; i++) {
-        newGuesses[turn - 1][i] = wordFromAI[i].toUpperCase();
-        console.log("Hitza ia berria: " + newGuesses);
-      }
-      setGuesses(newGuesses);
-      setCanProceed(false);
-      setCurrentTurn('player');
       try {
         const response = await fetch(`/check-word?word=${guesses[turn - 1].join("").toLowerCase()}&language=${language}`);
         if (!response.ok) {
@@ -118,22 +89,23 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
           setCanProceed(true);
           setTurn(turn + 1);
           setCurrentLetterIndex(0);
+          console.log("Turn: " + turn);
+          let newDictionary = { ...dictionary };
           let newTileColors = {tileColors };
             Object.values(guesses).forEach((guess, guessIndex) => {
               let hitzak = countLetters(word);
               guess.forEach((guessChar, charIndex) => {
                 let zenbaki = hitzak[guessChar];
                 if (guessChar === word[charIndex]) { 
-                  newTileColors[`${guessIndex}-${charIndex}`] = 'red';
-                  hitzak[guessChar]--;
+                  newDictionary["0"] = { ...newDictionary["0"], [guessChar]: charIndex };
                 } else if (word.includes(guessChar) && zenbaki > 0) {
-                  newTileColors[`${guessIndex}-${charIndex}`] = 'yellow';
-                  hitzak[guessChar]--;
-                } else {
-                  newTileColors[`${guessIndex}-${charIndex}`] = 'white';
+                  newDictionary["1"] = { ...newDictionary["1"], [guessChar]: charIndex };
+                } else if (!word.includes(guessChar)) {
+                  newDictionary["2"] = { ...newDictionary["2"], [guessChar]: 1 };
                 }
               });
             });
+            setDictionary(newDictionary);
             setTileColors(newTileColors);
           
             if(word === guesses[turn - 1].join("")){
@@ -145,6 +117,7 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
   
           } else {
             setWordNotFound(true);
+            console.log("ez dago hiztegian");
           }
         } catch (error) {
           console.error(error);
@@ -153,37 +126,21 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
     }
   
     useEffect(() => {
-      const allKeys = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "ñ", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "Enter", "Backspace"];
-  
       const handleKeyDown = (e) => {
         console.log("key: " + e.key);
         if (e.key === "Enter") {
+          let newGuesses = { ...guesses };
+          for (let i = 0; i < wordFromAI.length; i++) {
+            newGuesses[turn - 1][i] = wordFromAI[i].toUpperCase();
+            
+          }
+          console.log(newGuesses);
+          setGuesses(newGuesses);
           onEnter();
           console.log("enter");
         }
       }
-          /*const letter = e.key.toUpperCase();
-        if (allKeys.includes(e.key) && turn <= 6) {
-          if (letter.length === 1 && letter.match(/[A-Z]/i)) {
-            if(canProceed && currentTurn === 'ai'){
-              let newGuesses = { ...guesses };
-              newGuesses[turn - 1][currentLetterIndex] = letter;
-              setGuesses(newGuesses);
-  
-              if (currentLetterIndex === 4) {
-                setCanProceed(false);
-              } else {
-                setCurrentLetterIndex(currentLetterIndex + 1);
-              }
-            }
-          } else if (e.key === "Backspace" && currentLetterIndex > 0) {
-            onDelete();
-          } else if (e.key === "Enter" && !canProceed) {
-            onEnter();
-          }
-        }
-      };
-  */
+       
       window.addEventListener("keydown", handleKeyDown);
     
       return () => {
