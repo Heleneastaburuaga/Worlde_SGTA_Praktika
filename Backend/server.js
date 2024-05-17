@@ -18,9 +18,9 @@ function countLetterOccurrences(dictionary, restrictions) {
         const letter = word[i];
         
         // Comprobar las restricciones
-        if (restrictions["2"] && restrictions["2"][letter] !== undefined) continue;
-        if (restrictions["1"] && restrictions["1"][letter] === i) continue;
-        if (restrictions["0"] && Object.values(restrictions["0"]).includes(i) && restrictions["0"][letter] !== i) continue;
+        if (restrictions["2"] && restrictions["2"][letter] !== undefined) continue; //Esa letra no esta
+        if (restrictions["1"] && restrictions["1"][letter] === i) continue; //La posicion erronea
+        if (restrictions["0"] && Object.values(restrictions["0"]).includes(i) && restrictions["0"][letter] !== i) continue; //Ha acertado
   
         // Incrementar el conteo
         if (!counts[i]) {
