@@ -23,11 +23,11 @@ function generateRestrictionsText(restrictions) {
 }
 
 async function getWordFromAI(dictionary) {
-    const text = generateRestrictionsText(dictionary);
+    //const text = generateRestrictionsText(dictionary);
     try {
         const chatCompletion = await groq.chat.completions.create({
-            //messages: [{ role: "system", content: `Imagínate que estas jugando al juego Wordle, el cual consiste en adivinar una palabra aleatoria de 5 letras. Dame siempre una palabra de 5 letras. Respondeme solo con la palabra de 5 letras en español. Aquí tienes algunas pistas, en estas pistas se indica por cada posicion de la palabra (0,1,2,3,4) que letra es la mas probable de que este en la palabra, pr ejemplo {"0":{"a":2, "b":3}} significara que en la posicion 0(la primera) la letra b sale 3 veces de cada 5 y la letra a 2. Por lo que sera mejor escoger la b ya que es mas probable: ${JSON.stringify(dictionary)}. Importante que sea de cinco letras!` }],
-            messages: [{ role: "system", content: `Imagínate que estas jugando al juego Wordle, el cual consiste en adivinar una palabra aleatoria de 5 letras. Dame siempre una palabra de 5 letras. Respondeme solo con la palabra de 5 letras en español. Aquí tienes algunas pistas : ${text}. Importante que sea de cinco letras!` }],
+            messages: [{ role: "system", content: `Imagínate que estas jugando al juego Wordle, el cual consiste en adivinar una palabra aleatoria de 5 letras. Dame siempre una palabra de 5 letras. Respondeme solo con la palabra de 5 letras en español. Aquí tienes algunas pistas, en estas pistas se indica por cada posicion de la palabra (0,1,2,3,4) que letra es la mas probable de que este en la palabra, pr ejemplo {"0":{"a":2, "b":3}} significara que en la posicion 0(la primera) la letra b sale 3 veces de cada 5 y la letra a 2. Por lo que sera mejor escoger la b ya que es mas probable: ${JSON.stringify(dictionary)}. Importante que sea de cinco letras!` }],
+            //messages: [{ role: "system", content: `Imagínate que estas jugando al juego Wordle, el cual consiste en adivinar una palabra aleatoria de 5 letras. Dame siempre una palabra de 5 letras. Respondeme solo con la palabra de 5 letras en español. Aquí tienes algunas pistas : ${text}. Importante que sea de cinco letras!` }],
             model: "llama3-8b-8192"
         });
         return chatCompletion.choices[0]?.message?.content || "";

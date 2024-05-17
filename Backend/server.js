@@ -115,7 +115,7 @@ let hitza;
 let word = null;
 
 while (word === null) {
-    hitza = await getWordFromAI(restrictions);
+    hitza = await getWordFromAI(dictionary);
     word = getMostSimilarWord(words, hitza);
 }
 
