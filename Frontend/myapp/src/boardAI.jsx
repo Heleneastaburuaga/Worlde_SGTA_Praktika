@@ -24,11 +24,18 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
   const [tileColors, setTileColors] = useState({});
 
   useEffect(() => {
-    fetchWordFromAI();
+    fetchWordFromAI();  
   }, []);
+  
+  useEffect(() => {
+    if (currentTurn === 'ai') {
+      fetchWordFromAI();
+  }
+  }, [currentTurn,dictionary]);
  console.log("Hitza ia: " + wordFromAI)
  const restrictions = {...dictionary};
     console.log("Restrictions: " + JSON.stringify(restrictions));
+
   const fetchWordFromAI = async () => {
     try {
       const response = await fetch(`/get-word-from-ai?restrictions=${JSON.stringify(restrictions)}`);
@@ -37,6 +44,7 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
       }
       const data = await response.json();
       setWordFromAI(data.word);
+      console.log(data.dictionary)
     } catch (error) {
       console.error(error);
     }
@@ -126,9 +134,9 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
     }
   
     useEffect(() => {
-      const handleKeyDown = (e) => {
-        console.log("key: " + e.key);
-        if (e.key === "Enter") {
+      //const handleKeyDown = (e) => {
+       // console.log("key: " + e.key);
+        //if (e.key === "Enter") {
           let newGuesses = { ...guesses };
           for (let i = 0; i < wordFromAI.length; i++) {
             newGuesses[turn - 1][i] = wordFromAI[i].toUpperCase();
@@ -138,15 +146,15 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
           setGuesses(newGuesses);
           onEnter();
           console.log("enter");
-        }
-      }
+       // }
+      //}
        
-      window.addEventListener("keydown", handleKeyDown);
+     /* window.addEventListener("keydown", handleKeyDown);
     
       return () => {
         window.removeEventListener("keydown", handleKeyDown);
-      };
-    }, [guesses, turn, currentLetterIndex, canProceed, currentTurn]);
+      };*/
+    }, [currentTurn]);
   
     return win && currentTurn === 'ai' ? (
       <Galdu />

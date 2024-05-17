@@ -36,17 +36,35 @@ function countLetterOccurrences(dictionary, restrictions) {
     return counts;
   }
 
-// Función para buscar una palabra en una lista de palabras
+function getLastWord(phrase) {
+    const words = phrase.trim().split(' ');
+    return words[words.length - 1];
+}
+
 function searchWord(word, wordList) {
     const lowercaseWord = word.toLowerCase();
     return wordList.includes(lowercaseWord);
 }
 
-function getLastWord(phrase) {
-    const words = phrase.split(' ');
-    return words[words.length - 1];
-}
+function getMostSimilarWord(wordList, targetWord) {
+    let maxMatches = 0;
+    let mostSimilarWord = '';
 
+    for (let word of wordList) {
+        let matches = 0;
+        for (let letter of word) {
+            if (targetWord.includes(letter)) {
+                matches++;
+            }
+        }
+        if (matches > maxMatches) {
+            maxMatches = matches;
+            mostSimilarWord = word;
+        }
+    }
+
+    return mostSimilarWord || null;
+}
 // Función para obtener una palabra aleatoria de una lista de palabras
 function getRandomWord(wordList) {
     const randomIndex = Math.floor(Math.random() * wordList.length);
@@ -89,14 +107,19 @@ app.get("/check-word", (req, res) => {
 });
 
 app.get("/get-word-from-ai", async (req, res) => {
-    let restrictions = JSON.parse(req.query.restrictions);
-    //let restrictions = {"0":{"a":0,"b":3},"1":{"d":1},"2":{"e":0}};
-    let words;
-    words = readWordsFromFile('words-es.txt');
-    const dictionary= countLetterOccurrences(words, restrictions);
-    const word = await getWordFromAI(dictionary);
-    const hitza = getLastWord(word);
-    res.json({ word, dictionary });
+   let restrictions = JSON.parse(req.query.restrictions);
+let words;
+words = readWordsFromFile('words-es.txt');
+const dictionary= countLetterOccurrences(words, restrictions);
+let hitza;
+let word = null;
+
+while (word === null) {
+    hitza = await getWordFromAI(dictionary);
+    word = getMostSimilarWord(words, hitza);
+}
+
+res.json({ word, dictionary });
 });
 
 // Iniciar el servidor en el puerto 5000

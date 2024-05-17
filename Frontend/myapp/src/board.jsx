@@ -179,11 +179,12 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [guesses, turn, currentLetterIndex, canProceed, currentTurn]);
-console.log(" player win "+ win)
+
+
+
 return win && currentTurn === 'player' ? (
-    console.log(" player win "+ win),
   <Irabazi />
-) : (
+)  : (
   <Main>
     <Header>WORDLE</Header>
     {wordNotFound && <div>PALABRA NO ENCONTRADA</div>} {/* Mostrar el mensaje si la palabra no se encontró */}
