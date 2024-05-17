@@ -152,27 +152,8 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
       <Galdu />
     ) : (
       <Main>
-        <Header>WORDLE</Header>
-        {wordNotFound && <div>PALABRA NO ENCONTRADA</div>}
-        <GameSection>
-          <TileContainer>
-            {Object.values(guesses).map((guess, index) => {
-              return (
-                <TileRow key={index}>
-                  {guess.map((guessChar, guessIndex) => {
-                    let color = tileColors[`${index}-${guessIndex}`] === "red" ? "black" : "black";
-                    let backgroundColor = tileColors[`${index}-${guessIndex}`] || "white";
-                    return (
-                      <Tile key={guessIndex} bgColor={backgroundColor} style={{ color: color }}>
-                        {guessChar}
-                      </Tile>
-                    );
-                  })}
-                </TileRow>
-              );
-            })}
-          </TileContainer>
-        </GameSection>
+         <p>Letras adivinadas: {Object.keys(dictionary["0"] || {}).length}</p>
+          <p>Letras en la posición incorrecta: {Object.keys(dictionary["1"] || {}).length}</p>
       </Main>
     );
   }

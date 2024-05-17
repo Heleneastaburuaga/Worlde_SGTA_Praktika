@@ -42,6 +42,11 @@ function searchWord(word, wordList) {
     return wordList.includes(lowercaseWord);
 }
 
+function getLastWord(phrase) {
+    const words = phrase.split(' ');
+    return words[words.length - 1];
+}
+
 // Función para obtener una palabra aleatoria de una lista de palabras
 function getRandomWord(wordList) {
     const randomIndex = Math.floor(Math.random() * wordList.length);
@@ -90,6 +95,7 @@ app.get("/get-word-from-ai", async (req, res) => {
     words = readWordsFromFile('words-es.txt');
     const dictionary= countLetterOccurrences(words, restrictions);
     const word = await getWordFromAI(dictionary);
+    const hitza = getLastWord(word);
     res.json({ word, dictionary });
 });
 
