@@ -84,7 +84,7 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
   }
 
   async function onEnter() {
-    if(currentTurn === 'ai'){
+    if(currentTurn === 'ai'&& guesses[turn - 1]){
       try {
         const response = await fetch(`/check-word?word=${guesses[turn - 1].join("").toLowerCase()}&language=${language}`);
         if (!response.ok) {
@@ -137,15 +137,16 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
       //const handleKeyDown = (e) => {
        // console.log("key: " + e.key);
         //if (e.key === "Enter") {
-          let newGuesses = { ...guesses };
-          for (let i = 0; i < wordFromAI.length; i++) {
-            newGuesses[turn - 1][i] = wordFromAI[i].toUpperCase();
-            
-          }
-          console.log(newGuesses);
-          setGuesses(newGuesses);
-          onEnter();
-          console.log("enter");
+   let newGuesses = { ...guesses };
+if (newGuesses[turn - 1]) {
+  for (let i = 0; i < wordFromAI.length; i++) {
+    newGuesses[turn - 1][i] = wordFromAI[i].toUpperCase();
+  }
+  console.log(newGuesses);
+  setGuesses(newGuesses);
+  onEnter();
+  console.log("enter");
+}
        // }
       //}
        

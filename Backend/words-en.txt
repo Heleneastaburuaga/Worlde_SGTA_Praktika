@@ -1,5 +1,4 @@
- [
-		cigar,
+ 		cigar,
 		rebut,
 		sissy,
 		humph,
@@ -12973,4 +12972,3 @@
 		zygon,
 		zymes,
 		zymic,
-	]

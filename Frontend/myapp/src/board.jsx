@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Irabazi from './irabazi';
+import Galdu from './galdu';
 import {Main, Header, GameSection, TileContainer, TileRow, Tile} from './estiloa';
 import "./App.css";
 
@@ -184,7 +185,9 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
 
 return win && currentTurn === 'player' ? (
   <Irabazi />
-)  : (
+) : turn === 7 && !win ? (
+  <Galdu/>
+) : (
   <Main>
     <Header>WORDLE</Header>
     {wordNotFound && <div>PALABRA NO ENCONTRADA</div>} {/* Mostrar el mensaje si la palabra no se encontró */}
