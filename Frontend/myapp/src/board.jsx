@@ -186,7 +186,7 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
 return win && currentTurn === 'player' ? (
   <Irabazi />
 ) : turn === 7 && !win ? (
-  <Galdu/>
+  <Galdu />
 ) : (
   <Main>
     <Header>WORDLE</Header>

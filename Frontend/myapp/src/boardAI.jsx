@@ -40,6 +40,7 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
       5: Array.from({ length: 5 }).fill("")
     });
     setTileColors({});
+    setDictionary({});
   }, [language]);
 
   useEffect(() => {
@@ -67,7 +68,7 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
     let hitza = "" ;
     if(currentTurn === 'ai'){
       try {
-        const response = await fetch(`/get-word-from-ai?restrictions=${JSON.stringify(restrictions)}`);
+        const response = await fetch(`/get-word-from-ai?restrictions=${JSON.stringify(restrictions)}&language=${language}`);
         if (!response.ok) {
           throw new Error('Error al obtener la palabra de la IA desde el backend');
         }
@@ -99,6 +100,7 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
             setCanProceed(false);
             setWin(true);
             onWin(); 
+            console.log("ia win "+ win)
           } else {
             setCanProceed(true);
             setTurn(turn + 1);
@@ -126,6 +128,7 @@ function Board({ word, language, onWin, currentTurn, setCurrentTurn}) {
           } else {
             setWordNotFound(true);
             console.log("ez dago hiztegian");
+            onEnter();
           }
         } catch (error) {
           console.error(error);
