@@ -1,5 +1,5 @@
 const Groq = require("groq-sdk");
-const groq = new Groq({ apiKey: "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" });
+const groq = new Groq({ apiKey: "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" });
 
 // Función para obtener la palabra de la IA
 function generateRestrictionsText(restrictions) {

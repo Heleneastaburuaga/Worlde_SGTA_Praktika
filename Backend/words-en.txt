@@ -2312,9 +2312,7 @@
 		rower,
 		artsy,
 		rural,
-		shave
-	],
-	valid: [
+		shave,
 		aahed,
 		aalii,
 		aargh,
