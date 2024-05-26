@@ -26,8 +26,8 @@ async function getWordFromAI(message, language) {
     //const text = generateRestrictionsText(dictionary);
     try {
         const chatCompletion = await groq.chat.completions.create({
-            messages: [{ role: "system", content: `${message}` }],
-            files: [{ file: fs.readFileSync(`../words-${language}.txt`, 'utf8') }],
+        messages: [{ role: "system", content: `${message}`}],
+            //files: [{ file: fs.readFileSync(`../words-${language}.txt`, 'utf8') }],
             model: "llama3-8b-8192"
         });
         return chatCompletion.choices[0]?.message?.content || "";
